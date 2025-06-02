@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.36105.23
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QueryTune.WPF", "src\QueryTune.WPF\QueryTune.WPF.csproj", "{5297C64D-E7A3-667A-203F-946175D80DB0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QueryTune.Core", "src\QueryTune.Core\QueryTune.Core.csproj", "{3A7BE197-4B9B-4CDB-9384-34FD8CCB411D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5297C64D-E7A3-667A-203F-946175D80DB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5297C64D-E7A3-667A-203F-946175D80DB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5297C64D-E7A3-667A-203F-946175D80DB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5297C64D-E7A3-667A-203F-946175D80DB0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A7BE197-4B9B-4CDB-9384-34FD8CCB411D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A7BE197-4B9B-4CDB-9384-34FD8CCB411D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A7BE197-4B9B-4CDB-9384-34FD8CCB411D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A7BE197-4B9B-4CDB-9384-34FD8CCB411D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{5297C64D-E7A3-667A-203F-946175D80DB0} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{3A7BE197-4B9B-4CDB-9384-34FD8CCB411D} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B5079796-8577-498E-ADB5-F40F80BA65D6}
+	EndGlobalSection
+EndGlobal
