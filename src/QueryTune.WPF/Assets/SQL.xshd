@@ -72,6 +72,11 @@
             <Word>AS</Word>
             <Word>ON</Word>
             <Word>WITH</Word>
+            <Word>DECLARE</Word>
+            <Word>BEGIN</Word>
+            <Word>END</Word>
+            <Word>IF</Word>
+            <Word>NOT</Word>
         </Keywords>
 
         <!-- Functions -->

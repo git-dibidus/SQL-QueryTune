@@ -1,13 +1,11 @@
-﻿using System;
-using System.IO;
-using System.Reflection;
+﻿using System.Reflection;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Xml;
-using QueryTune.WPF.ViewModels;
-using System.ComponentModel;
 using ICSharpCode.AvalonEdit.Highlighting;
 using ICSharpCode.AvalonEdit.Highlighting.Xshd;
+using QueryTune.WPF.ViewModels;
 
 namespace QueryTune.WPF.Views
 {    public partial class MainWindow : Window

@@ -168,6 +168,20 @@
                             Style="{StaticResource PrimaryButton}"
                             Margin="0,16,0,0"/>
 
+                    <!-- Connection Error Panel -->
+                    <Border BorderThickness="1"
+                            BorderBrush="#e74c3c"
+                            Background="#fde8e6"
+                            Margin="0,8,0,0"
+                            Padding="12"
+                            CornerRadius="4"
+                            Visibility="{Binding ConnectionError, Converter={StaticResource StringToVisibilityConverter}}">
+                        <TextBlock Text="{Binding ConnectionError}"
+                                 TextWrapping="Wrap"
+                                 FontFamily="Consolas"
+                                 FontSize="12"/>
+                    </Border>
+
                     <!-- Loading indicator -->
                     <Border Background="#80000000" 
                             Visibility="{Binding IsConnecting, Converter={StaticResource BoolToVisibilityConverter}}"

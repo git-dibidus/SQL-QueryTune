@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using QueryTune.Core.Models;
+using QueryTune.Core.Reporting;
 using QueryTune.Core.Services;
 using QueryTune.WPF.Services;
 using System;
@@ -12,8 +13,26 @@ namespace QueryTune.WPF.ViewModels
     {
         private readonly IDatabaseConnectionService _connectionService;
         private readonly IQueryAnalysisService _analysisService;
-        private readonly ISettingsService _settingsService;        
+        private readonly ISettingsService _settingsService;
+
+        [ObservableProperty]
+        private ConnectionParameters connectionParameters;
         
+        [ObservableProperty]
+        private string sqlQuery = string.Empty;
+
+        [ObservableProperty]
+        private string analysisResults = string.Empty;
+
+        [ObservableProperty]
+        private bool isConnecting;
+
+        [ObservableProperty]
+        private string statusMessage = "Ready";
+
+        [ObservableProperty]
+        private string connectionError = string.Empty;
+
         public MainViewModel(
             IDatabaseConnectionService connectionService,
             IQueryAnalysisService analysisService,
@@ -26,7 +45,9 @@ namespace QueryTune.WPF.ViewModels
             
             // Note: In constructor we initialize with default values
             // The actual loading happens in LoadAsync which should be called by the View
-        }        public async Task LoadAsync()
+        }
+
+        public async Task LoadAsync()
         {
             await LoadConnectionParametersAsync();
             await LoadLastQueryAsync();
@@ -81,30 +102,6 @@ namespace QueryTune.WPF.ViewModels
             }
         }
 
-        [ObservableProperty]
-        private ConnectionParameters connectionParameters;
-
-        //partial void OnConnectionParametersChanged(ConnectionParameters value)
-        //{
-        //    // Save connection parameters whenever they change
-        //    if (value != null)
-        //    {
-        //        SaveConnectionParametersAsync().ConfigureAwait(false);
-        //    }
-        //}
-
-        [ObservableProperty]
-        private string sqlQuery = string.Empty;
-
-        [ObservableProperty]
-        private string analysisResults = string.Empty;
-
-        [ObservableProperty]
-        private string statusMessage = "Ready";
-
-        [ObservableProperty]
-        private bool isConnecting;
-
         [RelayCommand]
         private async Task TestConnection()
         {
@@ -116,6 +113,8 @@ namespace QueryTune.WPF.ViewModels
 
             try
             {
+                // Clear any previous error
+                ConnectionError = string.Empty;
                 IsConnecting = true;
                 StatusMessage = "Testing connection...";                
                 
@@ -129,11 +128,17 @@ namespace QueryTune.WPF.ViewModels
                 else
                 {
                     StatusMessage = "Connection failed";
+                    ConnectionError = "The connection test failed. Please verify your connection settings and try again.";
                 }
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Connection error: {ex.Message}";
+                StatusMessage = "Connection failed";
+                ConnectionError = $"Connection Error Details:\n{ex.Message}";
+                if (ex.InnerException != null)
+                {
+                    ConnectionError += $"\n\nAdditional Information:\n{ex.InnerException.Message}";
+                }
             }
             finally
             {
@@ -150,6 +155,8 @@ namespace QueryTune.WPF.ViewModels
                 return;
             }            try
             {
+                // Clear previous results before starting new analysis
+                AnalysisResults = string.Empty;
                 StatusMessage = "Analyzing query...";
                 await SaveLastQueryAsync();
 
@@ -163,12 +170,16 @@ namespace QueryTune.WPF.ViewModels
                 }
                 else
                 {
-                    StatusMessage = $"Analysis failed: {result.ErrorMessage}";
+                    // Show error in the results panel
+                    AnalysisResults = HtmlReportGenerator.GenerateErrorReport(SqlQuery, result.ErrorMessage);
+                    StatusMessage = "Analysis completed with errors";
                 }
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Analysis error: {ex.Message}";
+                // Show any unexpected errors in the results panel
+                AnalysisResults = HtmlReportGenerator.GenerateErrorReport(SqlQuery, ex.Message);
+                StatusMessage = "Analysis completed with errors";
             }
         }
     }
