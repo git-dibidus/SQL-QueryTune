@@ -2,6 +2,7 @@
 using System.IO;
 using System.Reflection;
 using System.Windows;
+using System.Windows.Controls;
 using System.Xml;
 using QueryTune.WPF.ViewModels;
 using System.ComponentModel;
@@ -47,26 +48,33 @@ namespace QueryTune.WPF.Views
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            _viewModel = (MainViewModel)DataContext;
-
-            // Set up WebView2 for results
-            ResultsViewer.NavigationCompleted += (s, e) =>
-            {
-                if (_viewModel != null && !string.IsNullOrEmpty(_viewModel.AnalysisResults))
-                {
-                    ResultsViewer.NavigateToString(_viewModel.AnalysisResults);
-                }
-            };
-
-            // Subscribe to analysis results changes
+            _viewModel = DataContext as MainViewModel;
             if (_viewModel != null)
             {
+                // Setup PasswordBox
+                PasswordBox.PasswordChanged += PasswordBox_PasswordChanged;
                 _viewModel.PropertyChanged += ViewModel_PropertyChanged;
+            }
+        }
+
+        private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            if (_viewModel?.ConnectionParameters != null)
+            {
+                _viewModel.ConnectionParameters.Password = PasswordBox.Password;
             }
         }
 
         private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
+            // Clear password box when switching to Windows Authentication
+            if (e.PropertyName == nameof(MainViewModel.ConnectionParameters))
+            {
+                if (_viewModel?.ConnectionParameters?.UseWindowsAuthentication == true)
+                {
+                    PasswordBox.Password = string.Empty;
+                }
+            }
             if (e.PropertyName == nameof(MainViewModel.AnalysisResults) && _viewModel != null)
             {
                 ResultsViewer.NavigateToString(_viewModel.AnalysisResults);

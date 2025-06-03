@@ -12,10 +12,6 @@
         Title="SQL QueryTune" Height="800" Width="1200"
         Background="{StaticResource AppBackgroundBrush}">
     
-    <Window.DataContext>
-        <vm:MainViewModel/>
-    </Window.DataContext>
-
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/> <!-- Header -->
@@ -118,69 +114,80 @@
             </Grid>
 
             <!-- Connection Panel - Right Column -->
-            <Grid Grid.Column="1" Margin="0,16,16,16">
+            <Border Grid.Column="1" 
+                    Style="{StaticResource CardBorderStyle}" 
+                    Margin="0,16,16,16">
                 <StackPanel>
-                    <!-- Connection Card -->
-                    <Border Style="{StaticResource CardBorderStyle}"
-                            Margin="0,0,0,16">
-                        <StackPanel>
-                            <TextBlock Text="Connection" 
-                                     Style="{StaticResource HeaderTextStyle}"/>
+                    <TextBlock Text="Connection Settings" 
+                             Style="{StaticResource HeaderTextStyle}"/>
 
-                            <TextBlock Text="Server Name" 
-                                     Style="{StaticResource SubheaderTextStyle}"/>
-                            <TextBox Text="{Binding ServerName}" 
-                                   Style="{StaticResource ModernTextBox}"/>
+                    <TextBlock Text="Server Name:" 
+                             Style="{StaticResource LabelTextStyle}" 
+                             Margin="0,16,0,4"/>
+                    <TextBox Text="{Binding ConnectionParameters.ServerName, UpdateSourceTrigger=PropertyChanged}"/>
 
-                            <TextBlock Text="Database" 
-                                     Style="{StaticResource SubheaderTextStyle}"/>
-                            <TextBox Text="{Binding DatabaseName}" 
-                                   Style="{StaticResource ModernTextBox}"/>
+                    <TextBlock Text="Database Name:" 
+                             Style="{StaticResource LabelTextStyle}" 
+                             Margin="0,16,0,4"/>
+                    <TextBox Text="{Binding ConnectionParameters.DatabaseName, UpdateSourceTrigger=PropertyChanged}"/>
 
-                            <TextBlock Text="Authentication" 
-                                     Style="{StaticResource SubheaderTextStyle}"/>
-                            <StackPanel Margin="0,4">
-                                <RadioButton Content="Windows Authentication" 
-                                           IsChecked="{Binding UseWindowsAuthentication}"
-                                           Margin="0,0,0,4"/>
-                                <RadioButton Content="SQL Server Authentication" 
-                                           IsChecked="{Binding UseWindowsAuthentication, 
-                                           Converter={StaticResource BoolToVisibilityConverter}, 
-                                           ConverterParameter=inverse}"/>
-                            </StackPanel>
+                    <GroupBox Header="Authentication" Margin="0,16,0,0">
+                        <StackPanel Margin="8">
+                            <RadioButton Content="Windows Authentication" 
+                                       IsChecked="{Binding ConnectionParameters.UseWindowsAuthentication}"
+                                       Margin="0,0,0,8"/>
+                            <RadioButton Content="SQL Server Authentication" 
+                                       IsChecked="{Binding Path=ConnectionParameters.UseWindowsAuthentication, 
+                                                         Converter={StaticResource BoolToVisibilityConverter}, 
+                                                         ConverterParameter=inverse}"/>
 
-                            <TextBlock Text="User ID" 
-                                     Style="{StaticResource SubheaderTextStyle}"
-                                     Visibility="{Binding UseWindowsAuthentication, 
-                                     Converter={StaticResource BoolToVisibilityConverter}, 
-                                     ConverterParameter=inverse}"/>
-                            <TextBox Text="{Binding UserId}" 
-                                   Style="{StaticResource ModernTextBox}"
-                                   Visibility="{Binding UseWindowsAuthentication, 
-                                   Converter={StaticResource BoolToVisibilityConverter}, 
-                                   ConverterParameter=inverse}"/>
+                            <TextBlock Text="User ID:" 
+                                     Style="{StaticResource LabelTextStyle}" 
+                                     Margin="0,16,0,4"
+                                     Visibility="{Binding ConnectionParameters.UseWindowsAuthentication, 
+                                                        Converter={StaticResource BoolToVisibilityConverter}, 
+                                                        ConverterParameter=inverse}"/>
+                            <TextBox Text="{Binding ConnectionParameters.UserId, UpdateSourceTrigger=PropertyChanged}"
+                                    Visibility="{Binding ConnectionParameters.UseWindowsAuthentication, 
+                                                       Converter={StaticResource BoolToVisibilityConverter}, 
+                                                       ConverterParameter=inverse}"/>
 
-                            <Button Content="Test Connection" 
-                                    Command="{Binding TestConnectionCommand}"
-                                    Style="{StaticResource PrimaryButton}"
-                                    Margin="0,16,0,0"/>
+                            <TextBlock Text="Password:" 
+                                     Style="{StaticResource LabelTextStyle}" 
+                                     Margin="0,16,0,4"
+                                     Visibility="{Binding ConnectionParameters.UseWindowsAuthentication, 
+                                                        Converter={StaticResource BoolToVisibilityConverter}, 
+                                                        ConverterParameter=inverse}"/>
+                            <PasswordBox x:Name="PasswordBox"
+                                       Visibility="{Binding ConnectionParameters.UseWindowsAuthentication, 
+                                                          Converter={StaticResource BoolToVisibilityConverter}, 
+                                                          ConverterParameter=inverse}"/>
                         </StackPanel>
+                    </GroupBox>
+
+                    <Button Content="Test Connection" 
+                            Command="{Binding TestConnectionCommand}"
+                            Style="{StaticResource PrimaryButton}"
+                            Margin="0,16,0,0"/>
+
+                    <!-- Loading indicator -->
+                    <Border Background="#80000000" 
+                            Visibility="{Binding IsConnecting, Converter={StaticResource BoolToVisibilityConverter}}"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch">
+                        <ProgressBar IsIndeterminate="True" 
+                                   Width="100" 
+                                   Height="2"/>
                     </Border>
                 </StackPanel>
-            </Grid>
+            </Border>
         </Grid>
 
         <!-- Status Bar -->
-        <StatusBar Grid.Row="2" Background="{StaticResource SurfaceBrush}">
-            <StatusBarItem>
-                <TextBlock Text="{Binding StatusMessage}"/>
-            </StatusBarItem>
-            <StatusBarItem HorizontalAlignment="Right">
-                <ProgressBar Width="100" Height="12" 
-                           IsIndeterminate="True"
-                           Visibility="{Binding IsAnalyzing, 
-                           Converter={StaticResource BoolToVisibilityConverter}}"/>
-            </StatusBarItem>
+        <StatusBar Grid.Row="2" Background="{StaticResource SecondaryBrush}">
+            <TextBlock Text="{Binding StatusMessage}" 
+                       Foreground="White" 
+                       Margin="8,4"/>
         </StatusBar>
     </Grid>
 </Window>

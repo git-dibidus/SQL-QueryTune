@@ -1,20 +1,26 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using QueryTune.Core.Models;
+using QueryTune.Core.Services;
+using System;
 using System.Threading.Tasks;
 
 namespace QueryTune.WPF.ViewModels
-{    public partial class MainViewModel : ObservableObject
+{
+    public partial class MainViewModel : ObservableObject
     {
-        [ObservableProperty]
-        private string serverName = string.Empty;
+        private readonly IDatabaseConnectionService _connectionService;
+        private readonly IQueryAnalysisService _analysisService;
+
+        public MainViewModel(IDatabaseConnectionService connectionService, IQueryAnalysisService analysisService)
+        {
+            _connectionService = connectionService;
+            _analysisService = analysisService;
+            ConnectionParameters = new ConnectionParameters();
+        }
 
         [ObservableProperty]
-        private string databaseName = string.Empty;
-
-        [ObservableProperty]
-        private bool useWindowsAuthentication = true;
-
-        [ObservableProperty]        private string userId = string.Empty;
+        private ConnectionParameters connectionParameters;
 
         [ObservableProperty]
         private string sqlQuery = string.Empty;
@@ -26,15 +32,34 @@ namespace QueryTune.WPF.ViewModels
         private string statusMessage = "Ready";
 
         [ObservableProperty]
-        private bool isAnalyzing;
+        private bool isConnecting;
 
         [RelayCommand]
         private async Task TestConnection()
         {
-            // TODO: Implement connection test
-            StatusMessage = "Testing connection...";
-            await Task.Delay(1000); // Simulated delay
-            StatusMessage = "Connection successful";
+            if (string.IsNullOrWhiteSpace(ConnectionParameters?.ServerName))
+            {
+                StatusMessage = "Please enter a server name";
+                return;
+            }
+
+            try
+            {
+                IsConnecting = true;
+                StatusMessage = "Testing connection...";
+
+                var success = await _connectionService.TestConnectionAsync(ConnectionParameters);
+
+                StatusMessage = success ? "Connection successful" : "Connection failed";
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Connection error: {ex.Message}";
+            }
+            finally
+            {
+                IsConnecting = false;
+            }
         }
 
         [RelayCommand]
@@ -48,18 +73,24 @@ namespace QueryTune.WPF.ViewModels
 
             try
             {
-                IsAnalyzing = true;
                 StatusMessage = "Analyzing query...";
-                
-                // TODO: Implement actual analysis using QueryTune.Core
-                await Task.Delay(2000); // Simulated delay
-                
-                AnalysisResults = "<h1>Analysis Results</h1><p>Sample results...</p>";
-                StatusMessage = "Analysis complete";
+
+                var connectionString = _connectionService.GetConnectionString(ConnectionParameters);
+                var result = await _analysisService.AnalyzeQueryAsync(connectionString, SqlQuery);
+
+                if (result.IsSuccess)
+                {
+                    AnalysisResults = result.HtmlReport;
+                    StatusMessage = "Analysis complete";
+                }
+                else
+                {
+                    StatusMessage = $"Analysis failed: {result.ErrorMessage}";
+                }
             }
-            finally
+            catch (Exception ex)
             {
-                IsAnalyzing = false;
+                StatusMessage = $"Analysis error: {ex.Message}";
             }
         }
     }

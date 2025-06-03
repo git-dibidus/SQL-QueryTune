@@ -24,23 +24,63 @@
         <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
         <Setter Property="Padding" Value="0,4,0,4"/>
         <Setter Property="Margin" Value="0,4,0,8"/>
-    </Style>
-
-    <!-- Modern Button Style -->
+    </Style>    <!-- Modern Button Style -->
     <Style x:Key="PrimaryButton" TargetType="Button">
         <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
         <Setter Property="Foreground" Value="White"/>
         <Setter Property="Padding" Value="16,8"/>
         <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Border Background="{TemplateBinding Background}"
+                    <Border x:Name="border" 
+                            Background="{TemplateBinding Background}"
                             CornerRadius="4"
                             Padding="{TemplateBinding Padding}">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="8" 
+                                            ShadowDepth="2" 
+                                            Opacity="0.2"/>
+                        </Border.Effect>
                         <ContentPresenter HorizontalAlignment="Center" 
                                         VerticalAlignment="Center"/>
                     </Border>
+                    <ControlTemplate.Triggers>
+                        <!-- Hover effect: Lighten the background -->
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="#2A337E"/>
+                            <Setter TargetName="border" Property="Effect">
+                                <Setter.Value>
+                                    <DropShadowEffect BlurRadius="12" 
+                                                    ShadowDepth="3" 
+                                                    Opacity="0.3"/>
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+                        <!-- Pressed effect: Darken the background and reduce shadow -->
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="#0A137E"/>
+                            <Setter TargetName="border" Property="Effect">
+                                <Setter.Value>
+                                    <DropShadowEffect BlurRadius="4" 
+                                                    ShadowDepth="1" 
+                                                    Opacity="0.2"/>
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+                        <!-- Disabled effect -->
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="border" Property="Background" Value="#CCCCCC"/>
+                            <Setter TargetName="border" Property="Effect">
+                                <Setter.Value>
+                                    <DropShadowEffect BlurRadius="0" 
+                                                    ShadowDepth="0" 
+                                                    Opacity="0"/>
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
@@ -59,6 +99,13 @@
         <Setter Property="FontSize" Value="20"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Margin" Value="0,0,0,16"/>
+    </Style>
+
+    <!-- Label Text Style -->
+    <Style x:Key="LabelTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Opacity" Value="0.8"/>
     </Style>
 
     <!-- Subheader Text Style -->
