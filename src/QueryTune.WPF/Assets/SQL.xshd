@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SyntaxDefinition name="SQL" extensions=".sql" xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008">
+    <Color name="Comment" foreground="#008000" />
+    <Color name="String" foreground="#A31515" />
+    <Color name="Keyword" foreground="#0000FF" fontWeight="bold" />
+    <Color name="Function" foreground="#FF4000" />
+    <Color name="Number" foreground="#FF8000" />
+    <Color name="DataType" foreground="#0000FF" />
+
+    <RuleSet>
+        <!-- Comments -->
+        <Span color="Comment" begin="--" />
+        <Span color="Comment" multiline="true" begin="/\*" end="\*/" />        <!-- Strings -->
+        <Span color="String">
+            <Begin>'</Begin>
+            <End>'</End>
+        </Span>
+        <Span color="String">
+            <Begin>&quot;</Begin>
+            <End>&quot;</End>
+        </Span>
+        <Span color="String">
+            <Begin>\[</Begin>
+            <End>\]</End>
+        </Span>
+
+        <!-- SQL Keywords -->
+        <Keywords color="Keyword">
+            <Word>SELECT</Word>
+            <Word>FROM</Word>
+            <Word>WHERE</Word>
+            <Word>GROUP</Word>
+            <Word>BY</Word>
+            <Word>ORDER</Word>
+            <Word>HAVING</Word>
+            <Word>JOIN</Word>
+            <Word>LEFT</Word>
+            <Word>RIGHT</Word>
+            <Word>INNER</Word>
+            <Word>OUTER</Word>
+            <Word>CROSS</Word>
+            <Word>UNION</Word>
+            <Word>ALL</Word>
+            <Word>INSERT</Word>
+            <Word>UPDATE</Word>
+            <Word>DELETE</Word>
+            <Word>INTO</Word>
+            <Word>VALUES</Word>
+            <Word>SET</Word>
+            <Word>CREATE</Word>
+            <Word>ALTER</Word>
+            <Word>DROP</Word>
+            <Word>TABLE</Word>
+            <Word>INDEX</Word>
+            <Word>VIEW</Word>
+            <Word>PROCEDURE</Word>
+            <Word>FUNCTION</Word>
+            <Word>TRIGGER</Word>
+            <Word>DATABASE</Word>
+            <Word>SCHEMA</Word>
+            <Word>AND</Word>
+            <Word>OR</Word>
+            <Word>NOT</Word>
+            <Word>IN</Word>
+            <Word>EXISTS</Word>
+            <Word>BETWEEN</Word>
+            <Word>LIKE</Word>
+            <Word>IS</Word>
+            <Word>NULL</Word>
+            <Word>TOP</Word>
+            <Word>DISTINCT</Word>
+            <Word>AS</Word>
+            <Word>ON</Word>
+            <Word>WITH</Word>
+        </Keywords>
+
+        <!-- Functions -->
+        <Keywords color="Function">
+            <Word>AVG</Word>
+            <Word>COUNT</Word>
+            <Word>SUM</Word>
+            <Word>MIN</Word>
+            <Word>MAX</Word>
+            <Word>DATEADD</Word>
+            <Word>DATEDIFF</Word>
+            <Word>CONVERT</Word>
+            <Word>CAST</Word>
+            <Word>ISNULL</Word>
+            <Word>COALESCE</Word>
+            <Word>SUBSTRING</Word>
+            <Word>LEN</Word>
+            <Word>ROUND</Word>
+            <Word>GETDATE</Word>
+            <Word>CURRENT_TIMESTAMP</Word>
+        </Keywords>
+
+        <!-- Data Types -->
+        <Keywords color="DataType">
+            <Word>INT</Word>
+            <Word>BIGINT</Word>
+            <Word>SMALLINT</Word>
+            <Word>TINYINT</Word>
+            <Word>BIT</Word>
+            <Word>DECIMAL</Word>
+            <Word>NUMERIC</Word>
+            <Word>MONEY</Word>
+            <Word>FLOAT</Word>
+            <Word>REAL</Word>
+            <Word>DATETIME</Word>
+            <Word>DATETIME2</Word>
+            <Word>DATE</Word>
+            <Word>TIME</Word>
+            <Word>CHAR</Word>
+            <Word>VARCHAR</Word>
+            <Word>NCHAR</Word>
+            <Word>NVARCHAR</Word>
+            <Word>TEXT</Word>
+            <Word>NTEXT</Word>
+            <Word>BINARY</Word>
+            <Word>VARBINARY</Word>
+            <Word>IMAGE</Word>
+            <Word>UNIQUEIDENTIFIER</Word>
+        </Keywords>
+
+        <!-- Numbers -->
+        <Rule color="Number">
+            \b\d+\b
+        </Rule>
+    </RuleSet>
+</SyntaxDefinition>
