@@ -7,9 +7,9 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Assets/Colors.xaml"/>
                 <ResourceDictionary Source="Assets/Styles.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
-              <!-- Global Converters -->
+            </ResourceDictionary.MergedDictionaries>              <!-- Global Converters -->
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+            <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -14,13 +14,16 @@ namespace QueryTune.WPF.Views
     {
         private MainViewModel? _viewModel;
         private IHighlightingDefinition? _sqlHighlighting;
+        private bool _isSettingPassword = false;
 
         public MainWindow()
         {
             InitializeComponent();
             LoadSqlHighlighting();
             Loaded += MainWindow_Loaded;
-        }        private void LoadSqlHighlighting()
+        }        
+        
+        private void LoadSqlHighlighting()
         {
             try
             {
@@ -44,22 +47,34 @@ namespace QueryTune.WPF.Views
             {
                 MessageBox.Show($"Error loading SQL syntax highlighting: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
-        }
-
-        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        }        
+        
+        private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             _viewModel = DataContext as MainViewModel;
+
             if (_viewModel != null)
             {
                 // Setup PasswordBox
                 PasswordBox.PasswordChanged += PasswordBox_PasswordChanged;
                 _viewModel.PropertyChanged += ViewModel_PropertyChanged;
+
+                // Load saved settings
+                await _viewModel.LoadAsync();
+
+                // Set initial password if exists
+                if (!string.IsNullOrEmpty(_viewModel.ConnectionParameters?.Password))
+                {
+                    _isSettingPassword = true;
+                    PasswordBox.Password = _viewModel.ConnectionParameters.Password;
+                    _isSettingPassword = false;
+                }
             }
         }
 
         private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
         {
-            if (_viewModel?.ConnectionParameters != null)
+            if (_viewModel?.ConnectionParameters != null && !_isSettingPassword)
             {
                 _viewModel.ConnectionParameters.Password = PasswordBox.Password;
             }
@@ -70,9 +85,18 @@ namespace QueryTune.WPF.Views
             // Clear password box when switching to Windows Authentication
             if (e.PropertyName == nameof(MainViewModel.ConnectionParameters))
             {
-                if (_viewModel?.ConnectionParameters?.UseWindowsAuthentication == true)
+                if (_viewModel?.ConnectionParameters != null)
                 {
-                    PasswordBox.Password = string.Empty;
+                    if (_viewModel.ConnectionParameters.UseWindowsAuthentication)
+                    {
+                        PasswordBox.Password = string.Empty;
+                    }
+                    else if (!string.IsNullOrEmpty(_viewModel.ConnectionParameters.Password))
+                    {
+                        _isSettingPassword = true;
+                        PasswordBox.Password = _viewModel.ConnectionParameters.Password;
+                        _isSettingPassword = false;
+                    }
                 }
             }
             if (e.PropertyName == nameof(MainViewModel.AnalysisResults) && _viewModel != null)
