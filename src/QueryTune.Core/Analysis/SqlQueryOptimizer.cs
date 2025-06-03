@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
-using QueryTune.Core.Analysis;
 using QueryTune.Core.Models;
 using QueryTune.Core.Reporting;
 
-namespace QueryTune.Core
+namespace QueryTune.Core.Analysis
 {
     public class SqlQueryOptimizer
     {

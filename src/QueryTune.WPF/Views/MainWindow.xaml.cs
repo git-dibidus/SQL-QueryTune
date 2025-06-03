@@ -8,7 +8,8 @@ using ICSharpCode.AvalonEdit.Highlighting.Xshd;
 using QueryTune.WPF.ViewModels;
 
 namespace QueryTune.WPF.Views
-{    public partial class MainWindow : Window
+{    
+    public partial class MainWindow : Window
     {
         private MainViewModel? _viewModel;
         private IHighlightingDefinition? _sqlHighlighting;
@@ -97,6 +98,7 @@ namespace QueryTune.WPF.Views
                     }
                 }
             }
+
             if (e.PropertyName == nameof(MainViewModel.AnalysisResults) && _viewModel != null)
             {
                 ResultsViewer.NavigateToString(_viewModel.AnalysisResults);

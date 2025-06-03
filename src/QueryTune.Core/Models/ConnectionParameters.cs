@@ -1,5 +1,3 @@
-using System;
-
 namespace QueryTune.Core.Models
 {
     public class ConnectionParameters
@@ -11,7 +9,8 @@ namespace QueryTune.Core.Models
         public string Password { get; set; }
 
         public string BuildConnectionString()
-        {            var builder = new Microsoft.Data.SqlClient.SqlConnectionStringBuilder
+        {            
+            var builder = new Microsoft.Data.SqlClient.SqlConnectionStringBuilder
             {
                 DataSource = ServerName,
                 InitialCatalog = DatabaseName,

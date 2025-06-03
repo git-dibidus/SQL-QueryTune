@@ -1,8 +1,8 @@
 using QueryTune.Core.Models;
-using System.Threading.Tasks;
 
 namespace QueryTune.WPF.Services
-{    public interface ISettingsService
+{    
+    public interface ISettingsService
     {
         Task SaveConnectionParametersAsync(ConnectionParameters parameters);
         Task<ConnectionParameters> LoadConnectionParametersAsync();

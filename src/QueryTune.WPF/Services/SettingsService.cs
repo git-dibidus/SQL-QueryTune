@@ -1,10 +1,8 @@
-using QueryTune.Core.Models;
-using System;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
+using QueryTune.Core.Models;
 
 namespace QueryTune.WPF.Services
 {
@@ -22,14 +20,14 @@ namespace QueryTune.WPF.Services
             _settingsFilePath = Path.Combine(appDataPath, "settings.json");
         }
 
-    private class StoredSettings
-    {
-        public string? ServerName { get; set; }
-        public string? DatabaseName { get; set; }
-        public bool UseWindowsAuthentication { get; set; }
-        public string? UserId { get; set; }
-        public string? EncryptedPassword { get; set; }
-        public string? LastQuery { get; set; }
+        private class StoredSettings
+        {
+            public string? ServerName { get; set; }
+            public string? DatabaseName { get; set; }
+            public bool UseWindowsAuthentication { get; set; }
+            public string? UserId { get; set; }
+            public string? EncryptedPassword { get; set; }
+            public string? LastQuery { get; set; }
         }
 
         public async Task SaveConnectionParametersAsync(ConnectionParameters parameters)

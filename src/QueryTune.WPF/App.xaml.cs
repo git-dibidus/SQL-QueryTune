@@ -19,7 +19,9 @@ namespace QueryTune.WPF
             var services = new ServiceCollection();
             ConfigureServices(services);
             _serviceProvider = services.BuildServiceProvider();
-        }        private void ConfigureServices(IServiceCollection services)
+        }        
+        
+        private void ConfigureServices(IServiceCollection services)
         {
             // Register services
             services.AddSingleton<IDatabaseConnectionService, DatabaseConnectionService>();
@@ -44,5 +46,4 @@ namespace QueryTune.WPF
             mainWindow.Show();
         }
     }
-
 }

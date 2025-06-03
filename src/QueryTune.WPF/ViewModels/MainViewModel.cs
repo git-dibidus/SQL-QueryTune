@@ -4,8 +4,6 @@ using QueryTune.Core.Models;
 using QueryTune.Core.Reporting;
 using QueryTune.Core.Services;
 using QueryTune.WPF.Services;
-using System;
-using System.Threading.Tasks;
 
 namespace QueryTune.WPF.ViewModels
 {
@@ -153,7 +151,9 @@ namespace QueryTune.WPF.ViewModels
             {
                 StatusMessage = "Please enter a SQL query";
                 return;
-            }            try
+            }  
+            
+            try
             {
                 // Clear previous results before starting new analysis
                 AnalysisResults = string.Empty;
