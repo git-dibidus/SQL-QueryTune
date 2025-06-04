@@ -9,7 +9,10 @@
         xmlns:vm="clr-namespace:QueryTune.WPF.ViewModels"
         xmlns:b="clr-namespace:QueryTune.WPF.Behaviors"
         mc:Ignorable="d"
-        Title="SQL QueryTune" Height="800" Width="1200"
+        Title="{Binding FormTitle}" 
+        Height="800" Width="1200"
+        MinHeight="500" MinWidth="800"
+        Icon="/AppIcon.ico"
         Background="{StaticResource AppBackgroundBrush}">
     
     <Grid>

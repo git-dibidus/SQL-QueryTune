@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using QueryTune.Core.Models;
 using QueryTune.Core.Reporting;
 using QueryTune.Core.Services;
+using QueryTune.WPF.Helpers;
 using QueryTune.WPF.Services;
 
 namespace QueryTune.WPF.ViewModels
@@ -31,6 +32,9 @@ namespace QueryTune.WPF.ViewModels
         [ObservableProperty]
         private string connectionError = string.Empty;
 
+        [ObservableProperty]
+        private string formTitle = string.Empty;
+
         public MainViewModel(
             IDatabaseConnectionService connectionService,
             IQueryAnalysisService analysisService,
@@ -40,7 +44,9 @@ namespace QueryTune.WPF.ViewModels
             _analysisService = analysisService;
             _settingsService = settingsService;
             ConnectionParameters = new ConnectionParameters();
-            
+
+            FormTitle = $"SQL QueryTune (V {AppVersionHelper.InformationalVersion})";
+
             // Note: In constructor we initialize with default values
             // The actual loading happens in LoadAsync which should be called by the View
         }

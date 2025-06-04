@@ -102,11 +102,14 @@ namespace QueryTune.Core.Reporting
             sb.AppendLine("<div class=\"metrics\">");
             sb.AppendLine("<table border=\"1\" cellpadding=\"5\" cellspacing=\"0\">");
             sb.AppendLine("<tr>");
+            
             foreach (DataColumn col in metrics.Columns)
             {
                 sb.AppendLine($"<th>{col.ColumnName}</th>");
             }
-            sb.AppendLine("</tr>");            foreach (DataRow row in metrics.Rows)
+            sb.AppendLine("</tr>");            
+            
+            foreach (DataRow row in metrics.Rows)
             {
                 sb.AppendLine("<tr>");
                 foreach (var item in row.ItemArray)
@@ -115,6 +118,7 @@ namespace QueryTune.Core.Reporting
                 }
                 sb.AppendLine("</tr>");
             }
+
             sb.AppendLine("</table>");
             sb.AppendLine("</div>");
             sb.AppendLine("</body>");
