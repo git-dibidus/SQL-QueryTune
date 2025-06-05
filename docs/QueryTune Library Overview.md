@@ -19,8 +19,8 @@ The main entry point of the library, located in `SqlQueryOptimizer.cs`. It orche
 #### QueryAnalyzer
 Located in `QueryAnalyzer.cs`, provides:
 - Execution plan retrieval
-- Query performance metrics collection
-- Real-time statistics gathering
+- Query performance metrics collection (CPU time, elapsed time, logical reads/writes, etc.)
+- Tracked query execution with unique identifiers for reliable metrics gathering
 
 #### ExecutionPlanAnalyzer
 Located in `ExecutionPlanAnalyzer.cs`, identifies:
@@ -46,9 +46,12 @@ Located in `StatisticsAnalyzer.cs`, performs:
 #### HtmlReportGenerator
 Located in `HtmlReportGenerator.cs`, generates:
 - Formatted HTML reports
-- Performance metrics visualization
+- Performance metrics visualization with detailed explanations:
+  - CPU Time and Elapsed Time measurements
+  - Memory utilization (Logical Reads/Writes)
+  - Row processing statistics
 - Optimization suggestions with impact levels
-- Recommended actions
+- Recommended actions with implementation guidance
 
 ### 4. Models
 
@@ -62,7 +65,10 @@ Located in `OptimizationSuggestion.cs`, defines:
 
 1. **Query Analysis**
    - Execution plan analysis
-   - Performance metrics collection
+   - Comprehensive performance metrics collection:
+     - CPU and execution time metrics
+     - Memory usage (buffer reads/writes)
+     - Row processing statistics
    - Statistics evaluation
 
 2. **Optimization Recommendations**
@@ -73,9 +79,10 @@ Located in `OptimizationSuggestion.cs`, defines:
 
 3. **Report Generation**
    - Detailed HTML reports
-   - Visual presentation of metrics
-   - Prioritized recommendations
-   - Actionable suggestions
+   - Visual presentation of performance metrics with explanations
+   - Performance insights with interpretations of metric values
+   - Prioritized recommendations based on impact analysis
+   - Actionable suggestions with implementation details
 
 ## Dependencies
 - Microsoft.Data.SqlClient (v6.0.2) for SQL Server connectivity
@@ -88,4 +95,4 @@ var optimizer = new SqlQueryOptimizer("connection_string");
 string report = optimizer.AnalyzeAndOptimize("SELECT * FROM Users WHERE LastLoginDate > @date");
 ```
 
-The library will analyze the query and return an HTML report containing performance metrics and optimization suggestions.
+The library will analyze the query and return an HTML report containing detailed performance metrics (CPU time, elapsed time, memory usage, etc.) and prioritized optimization suggestions.
