@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using QueryTune.Core.Models;
 using QueryTune.Core.Reporting;
+using System.Data;
 
 namespace QueryTune.Core.Analysis
 {
@@ -21,13 +22,36 @@ namespace QueryTune.Core.Analysis
             _reportGenerator = new HtmlReportGenerator();
         }
 
-        public string AnalyzeAndOptimize(string sqlQuery)
+        private DataTable CreateDefaultMetricsTable()
         {
-            // Step 1: Get execution plan
+            // Create a default metrics table with placeholder values
+            var defaultMetrics = new DataTable();
+            defaultMetrics.Columns.Add("MetricName", typeof(string));
+            defaultMetrics.Columns.Add("MetricValue", typeof(string));
+            defaultMetrics.Columns.Add("MetricUnit", typeof(string));
+            
+            defaultMetrics.Rows.Add("Execution Count", "1", "count");
+            defaultMetrics.Rows.Add("CPU Time", "N/A", "microseconds");
+            defaultMetrics.Rows.Add("Elapsed Time", "N/A", "microseconds");
+            defaultMetrics.Rows.Add("Logical Reads", "N/A", "pages");
+            defaultMetrics.Rows.Add("Logical Writes", "N/A", "pages");
+            defaultMetrics.Rows.Add("Rows Returned", "N/A", "count");
+            
+            return defaultMetrics;
+        }
+
+        public string AnalyzeAndOptimize(string sqlQuery)
+        {            // Step 1: Get execution plan
             var plan = _queryAnalyzer.GetExecutionPlan(sqlQuery);
 
             // Step 2: Get performance metrics
             var metrics = _queryAnalyzer.GetQueryMetrics(sqlQuery);
+            
+            // Make sure we have metrics
+            if (metrics == null || metrics.Rows.Count == 0)
+            {
+                metrics = CreateDefaultMetricsTable();
+            }
 
             // Step 3: Analyze execution plan
             var planSuggestions = ExecutionPlanAnalyzer.AnalyzePlan(plan);

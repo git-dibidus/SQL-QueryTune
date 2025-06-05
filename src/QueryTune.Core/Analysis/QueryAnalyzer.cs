@@ -36,9 +36,7 @@ namespace QueryTune.Core.Analysis
             }
 
             return null;
-        }
-
-        public DataTable GetQueryMetrics(string sqlQuery)
+        }        public DataTable GetQueryMetrics(string sqlQuery)
         {
             using var connection = new SqlConnection(_connectionString);
             connection.Open();
@@ -49,36 +47,81 @@ namespace QueryTune.Core.Analysis
                 connection);
             clearCmd.ExecuteNonQuery();
 
-            // Get performance metrics from DMVs
-            var metricsQuery = $@"
-            -- First execute the query
-            {sqlQuery}
+            // Create a more reliable way to track the query in DMVs
+            string queryId = Guid.NewGuid().ToString("N");
+            string taggedQuery = $"/* QueryTune ID: {queryId} */\n{sqlQuery}";
             
-            -- Then get metrics
-            SELECT TOP 1
-                qs.execution_count,
-                qs.total_logical_reads,
-                qs.total_logical_writes,
-                qs.total_worker_time,
-                qs.total_elapsed_time,
-                qs.total_elapsed_time / qs.execution_count AS avg_elapsed_time,
-                qs.last_elapsed_time,
-                qs.min_elapsed_time,
-                qs.max_elapsed_time,
-                qs.total_rows,
-                qs.last_rows,
-                qs.min_rows,
-                qs.max_rows
-            FROM sys.dm_exec_query_stats qs
-            CROSS APPLY sys.dm_exec_sql_text(qs.sql_handle) st
-            WHERE st.text LIKE '%' + @QueryPart + '%'
-            ORDER BY qs.last_execution_time DESC";
+            // Execute and track the query
+            var trackingQuery = $@"
+            -- Enable statistics IO and time
+            SET STATISTICS IO ON;
+            SET STATISTICS TIME ON;
+            
+            -- Execute the query to collect metrics
+            {taggedQuery}
+            
+            -- Disable statistics
+            SET STATISTICS IO OFF;
+            SET STATISTICS TIME OFF;
+            
+            -- Get the metrics from DMVs with more reliable tracking
+            SELECT
+                'Execution Count' AS MetricName, 1 AS MetricValue, 'count' AS MetricUnit
+            UNION ALL
+            SELECT 
+                'CPU Time', 
+                (SELECT MAX(total_worker_time) FROM sys.dm_exec_query_stats qs 
+                CROSS APPLY sys.dm_exec_sql_text(qs.sql_handle) st 
+                WHERE st.text LIKE '%QueryTune ID: {queryId}%'), 
+                'microseconds'
+            UNION ALL
+            SELECT 
+                'Elapsed Time', 
+                (SELECT MAX(total_elapsed_time) FROM sys.dm_exec_query_stats qs 
+                CROSS APPLY sys.dm_exec_sql_text(qs.sql_handle) st 
+                WHERE st.text LIKE '%QueryTune ID: {queryId}%'), 
+                'microseconds'
+            UNION ALL
+            SELECT 
+                'Logical Reads', 
+                (SELECT MAX(total_logical_reads) FROM sys.dm_exec_query_stats qs 
+                CROSS APPLY sys.dm_exec_sql_text(qs.sql_handle) st 
+                WHERE st.text LIKE '%QueryTune ID: {queryId}%'), 
+                'pages'
+            UNION ALL
+            SELECT 
+                'Logical Writes', 
+                (SELECT MAX(total_logical_writes) FROM sys.dm_exec_query_stats qs 
+                CROSS APPLY sys.dm_exec_sql_text(qs.sql_handle) st 
+                WHERE st.text LIKE '%QueryTune ID: {queryId}%'), 
+                'pages'
+            UNION ALL
+            SELECT 
+                'Rows Returned', 
+                (SELECT MAX(last_rows) FROM sys.dm_exec_query_stats qs 
+                CROSS APPLY sys.dm_exec_sql_text(qs.sql_handle) st 
+                WHERE st.text LIKE '%QueryTune ID: {queryId}%'), 
+                'count'";
 
-            using var cmd = new SqlCommand(metricsQuery, connection);
-            cmd.Parameters.AddWithValue("@QueryPart", sqlQuery.Substring(0, Math.Min(50, sqlQuery.Length)));
-
+            using var cmd = new SqlCommand(trackingQuery, connection);
+            
             var metricsTable = new DataTable();
-            metricsTable.Load(cmd.ExecuteReader());
+            using var reader = cmd.ExecuteReader();
+            
+            // Skip any result sets from the original query execution
+            while (reader.NextResult())
+            {
+                // Keep looking for the metrics result set
+                if (reader.FieldCount == 3 && 
+                    reader.GetName(0) == "MetricName" && 
+                    reader.GetName(1) == "MetricValue" && 
+                    reader.GetName(2) == "MetricUnit")
+                {
+                    metricsTable.Load(reader);
+                    break;
+                }
+            }
+            
             return metricsTable;
         }
     }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,57 @@ namespace QueryTune.Core.Reporting
 {
     public class HtmlReportGenerator
     {
+        private static void AddMetricRow(StringBuilder sb, string metricName, string value)
+        {
+            sb.AppendLine($"<tr><td><strong>{metricName}</strong></td><td>{value}</td></tr>");
+        }
+        
+        private static void AddMetricIfExists(StringBuilder sb, DataRow row, string columnName, string displayName, string format = null)
+        {
+            // Check if the column exists in the DataRow
+            if (row.Table.Columns.Contains(columnName))
+            {
+                AddMetricRow(sb, displayName, FormatValue(row[columnName], format));
+            }
+        }
+        
+        private static bool IsPerformanceMetric(string columnName)
+        {
+            // These keywords usually indicate performance-related columns
+            string[] performanceKeywords = new[] {
+                "time", "duration", "cpu", "reads", "writes", "rows", "memory",
+                "execution", "worker", "elapsed", "io", "count", "wait", "cost"
+            };
+            
+            return performanceKeywords.Any(keyword => columnName.ToLower().Contains(keyword));
+        }
+        
+        private static string FormatColumnName(string columnName)
+        {
+            return string.Join(" ", columnName.Split('_')
+                .Select(word => word.Length > 0 ? 
+                    char.ToUpper(word[0]) + (word.Length > 1 ? word.Substring(1).ToLower() : "") : 
+                    ""));
+        }
+
+        private static string FormatValue(object value, string format = null)
+        {
+            if (value == null || value == DBNull.Value)
+            {
+                return "N/A";
+            }
+            
+            if (value is int || value is long || value is double || value is decimal)
+            {
+                if (!string.IsNullOrEmpty(format))
+                {
+                    return string.Format($"{{0:{format}}}", value);
+                }
+            }
+            
+            return value.ToString();
+        }
+        
         private static string GetHtmlHeader()
         {
             var sb = new StringBuilder();
@@ -15,11 +67,15 @@ namespace QueryTune.Core.Reporting
             sb.AppendLine("<html>");
             sb.AppendLine("<head>");
             sb.AppendLine("<title>SQL Query Analysis</title>");
-            sb.AppendLine("<style>");
-            sb.AppendLine("body { font-family: Arial, sans-serif; margin: 20px; }");
+            sb.AppendLine("<style>");            sb.AppendLine("body { font-family: Arial, sans-serif; margin: 20px; }");
             sb.AppendLine("h1 { color: #2a5885; }");
             sb.AppendLine(".query { background: #f5f5f5; padding: 10px; border-radius: 5px; }");
             sb.AppendLine(".metrics { margin: 20px 0; }");
+            sb.AppendLine(".metrics table { width: 100%; border-collapse: collapse; margin-top: 10px; }");
+            sb.AppendLine(".metrics th, .metrics td { padding: 8px; text-align: left; border: 1px solid #ddd; }");
+            sb.AppendLine(".metrics th { background-color: #f2f2f2; }");
+            sb.AppendLine(".metrics tr:nth-child(even) { background-color: #f9f9f9; }");
+            sb.AppendLine(".metrics tr:hover { background-color: #f1f1f1; }");
             sb.AppendLine(".suggestions { margin-top: 30px; }");
             sb.AppendLine(".suggestion { margin-bottom: 15px; padding: 10px; border-left: 4px solid; }");
             sb.AppendLine(".high-impact { border-color: #e74c3c; background: #fde8e6; }");
@@ -41,7 +97,8 @@ namespace QueryTune.Core.Reporting
         {
             var sb = new StringBuilder();
             sb.Append(GetHtmlHeader());
-            sb.AppendLine("<body>");            sb.AppendLine("<h1>SQL Query Analysis</h1>");
+            sb.AppendLine("<body>");            
+            sb.AppendLine("<h1>SQL Query Analysis</h1>");
 
             // Error Message (shown first)
             sb.AppendLine("<div class=\"error\">");
@@ -95,36 +152,111 @@ namespace QueryTune.Core.Reporting
                     sb.AppendLine("</div>");
                 }
             }
-            sb.AppendLine("</div>");
-
-            // Performance Metrics (moved to end)
-            sb.AppendLine("<h2>Performance Metrics</h2>");
+            sb.AppendLine("</div>");            // Performance Metrics (moved to end)  
             sb.AppendLine("<div class=\"metrics\">");
-            sb.AppendLine("<table border=\"1\" cellpadding=\"5\" cellspacing=\"0\">");
-            sb.AppendLine("<tr>");
             
-            foreach (DataColumn col in metrics.Columns)
+            if (metrics == null || metrics.Rows.Count == 0)
             {
-                sb.AppendLine($"<th>{col.ColumnName}</th>");
+                sb.AppendLine("<p>No performance metrics available.</p>");
             }
-            sb.AppendLine("</tr>");            
-            
-            foreach (DataRow row in metrics.Rows)
+            else
             {
-                sb.AppendLine("<tr>");
-                foreach (var item in row.ItemArray)
+                // Add a performance summary before the detailed metrics
+                sb.AppendLine("<h2>Performance Summary</h2>");
+                sb.AppendLine("<p>This section shows the performance characteristics of your SQL query. These metrics can help identify bottlenecks and areas for optimization.</p>");
+                
+                sb.AppendLine("<table border=\"1\" cellpadding=\"5\" cellspacing=\"0\">");
+                sb.AppendLine("<tr><th>Metric</th><th>Value</th></tr>");
+                  // Display metrics in the new format with MetricName, MetricValue, MetricUnit columns
+                foreach (DataRow row in metrics.Rows)
                 {
-                    sb.AppendLine($"<td>{item}</td>");
+                    string metricName = row["MetricName"].ToString();
+                    string metricValue = FormatMetricValue(row["MetricValue"], row["MetricUnit"].ToString());
+                    string displayName = FormatMetricDisplayName(metricName, row["MetricUnit"].ToString());
+                    
+                    AddMetricRow(sb, displayName, metricValue);
                 }
-                sb.AppendLine("</tr>");
+                
+                sb.AppendLine("</table>");
+                
+                // Add explanations for the metrics
+                sb.AppendLine("<div style=\"margin-top: 15px; font-size: 0.9em; color: #555;\">");
+                sb.AppendLine("<h4>Understanding These Metrics</h4>");
+                sb.AppendLine("<ul>");
+                sb.AppendLine("<li><strong>CPU Time</strong>: The amount of processor time used by the query.</li>");
+                sb.AppendLine("<li><strong>Elapsed Time</strong>: The total wall-clock time taken by the query.</li>");
+                sb.AppendLine("<li><strong>Logical Reads</strong>: The number of pages read from the buffer cache (memory).</li>");
+                sb.AppendLine("<li><strong>Logical Writes</strong>: The number of pages written to the buffer cache.</li>");
+                sb.AppendLine("<li><strong>Rows</strong>: The number of rows processed/returned by the query.</li>");
+                sb.AppendLine("</ul>");
+                sb.AppendLine("<p>High logical reads, CPU time, or elapsed time may indicate optimization opportunities.</p>");
+                sb.AppendLine("</div>");
             }
-
-            sb.AppendLine("</table>");
+            
             sb.AppendLine("</div>");
             sb.AppendLine("</body>");
             sb.AppendLine("</html>");
 
             return sb.ToString();
+        }
+
+        private static string FormatMetricValue(object value, string unit)
+        {
+            if (value == null || value == DBNull.Value)
+            {
+                return "N/A";
+            }
+            
+            // Format the value based on its unit
+            switch (unit.ToLower())
+            {
+                case "microseconds":
+                    // Convert microseconds to milliseconds for better readability
+                    if (decimal.TryParse(value.ToString(), out decimal microseconds))
+                    {
+                        return $"{microseconds / 1000:N2} ms";
+                    }
+                    break;
+                
+                case "pages":
+                    return $"{value:N0}";
+                
+                case "count":
+                    return $"{value:N0}";
+                
+                default:
+                    return value.ToString();
+            }
+            
+            return value.ToString();
+        }
+        
+        private static string FormatMetricDisplayName(string metricName, string unit)
+        {
+            // Format the display name based on the metric and its unit
+            switch (metricName)
+            {
+                case "CPU Time":
+                    return "CPU Time";
+                
+                case "Elapsed Time":
+                    return "Elapsed Time";
+                
+                case "Logical Reads":
+                    return "Logical Reads (Buffer Pages)";
+                
+                case "Logical Writes":
+                    return "Logical Writes (Buffer Pages)";
+                
+                case "Rows Returned":
+                    return "Rows Returned";
+                
+                case "Execution Count":
+                    return "Execution Count";
+                
+                default:
+                    return metricName;
+            }
         }
     }
 }
