@@ -54,7 +54,7 @@ SQL QueryTune is a powerful .NET tool designed to analyze SQL queries and provid
 
 ### Installation Steps
 
-1. Download the latest release from the [Releases](https://github.com/yourusername/sql-querytune/releases) page
+1. Download the latest release from [Releases](https://github.com/git-dibidus/SQL-QueryTune/releases/tag/0.8.0)
 2. Follow the installation wizard instructions
 
 ## Usage
