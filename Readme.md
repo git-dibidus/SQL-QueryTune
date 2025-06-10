@@ -4,7 +4,7 @@
 
 ## Overview
 
-SQL QueryTune is a powerful .NET tool designed to analyze SQL queries and provide optimization suggestions for Microsoft SQL Server. It performs comprehensive analysis of query execution plans, statistics, and indexing strategies to improve query performance.
+SQL QueryTune is a .NET tool designed to analyze SQL queries and provide optimization suggestions for Microsoft SQL Server. It performs comprehensive analysis of query execution plans, statistics, and indexing strategies to improve query performance.
 
 > **Note**: This project is currently a work in progress. The pre-release version is usable but lacks some planned features that will be implemented in future releases.
 
